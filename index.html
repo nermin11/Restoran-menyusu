@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Restoran menyusu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: antiquewhite;
+    }
+    .card img {
+      height: 200px;
+      object-fit: cover;
+    }
+    #category-buttons .btn.active {
+      background-color: #0d6efd;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h1 class="text-center mb-4">🍽 Restoran Menyusu</h1>
+    <div
+      class="d-flex justify-content-center flex-wrap gap-2 mb-4"
+      id="category-buttons">
+      <button class="btn btn-outline-primary active" data-category="Hamısı">
+        Hamısı
+      </button>
+      <button class="btn btn-outline-primary" data-category="Salatlar">
+        Salatlar
+      </button>
+      <button class="btn btn-outline-primary" data-category="Əsas Yeməklər">
+        Əsas Yeməklər
+      </button>
+      <button class="btn btn-outline-primary" data-category="İçkilər">
+        İçkilər
+      </button>
+    </div>
+    <div class="d-flex justify-content-center mb-4">
+  <input
+    type="text"
+    id="search-input"
+    class="form-control w-50"
+    placeholder="Axtar..."
+    autocomplete="off"/>
+</div>
+<div class="row" id="menu-container"></div>
+  </div>
+<div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="menuModalLabel">Məhsul Adı</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bağla"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="" class="img-fluid mb-3" style="max-height: 250px; object-fit: cover;" />
+        <p id="modalDescription"></p>
+        <p id="modalPrice" class="fw-bold"></p>
+      </div>
+    </div>
+  </div>
+</div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const container = document.getElementById("menu-container");
+      const buttons = document.querySelectorAll("#category-buttons button");
+      const searchInput = document.getElementById("search-input");
+      const menuItems = [
+        {
+          id: 1,
+          name: "Toyuq Salatı",
+          category: "Salatlar",
+          price: "5 AZN",
+          image: "images/salad.jpg",
+          description:
+            "Təzə tərəvəzlər və qızardılmış toyuq ilə hazırlanmış salat.",
+        },
+        {
+          id: 2,
+          name: "Lülə Kebab",
+          category: "Əsas Yeməklər",
+          price: "10 AZN",
+          image: "images/kabab.jpg.jpg",
+          description: "Ətirli ət ilə klassik lülə kabab.",
+        },
+        {
+          id: 3,
+          name: "Coca-Cola",
+          category: "İçkilər",
+          price: "1.5 AZN",
+          image: "images/cola.jpg",
+          description: "Soyuq qazlı içki.",
+        },
+      ];
+        let currentCategory="Hamısı";
+      function renderMenu(category, searchTerm ="") {
+        currentCategory = category;
+        container.innerHTML="";
+        let filtered =
+          category === "Hamısı"
+            ? menuItems
+            : menuItems.filter((item) => item.category === category);
+            if(searchTerm){
+                filtered = filtered.filter((item)=>
+                item.name.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())
+            );
+            }
+        if(filtered.length===0){
+            container.innerHTML = `<p class="text-center">Menyu tapılmadı.</p>`;
+            return
+        }
+        filtered.forEach((item) => {
+          container.innerHTML += `
+           <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm menu-card" style="cursor: pointer;"
+            data-name="${item.name}"
+            data-description ="${item.description}"
+            data-price = "${item.price}"
+            data-image="${item.image}">
+                <img src="${item.image}" alt="${item.name}" class="card-img-top" />
+                <div class="card-body">
+                  <h5 class="card-title">${item.name}</h5>
+                  <p class="card-text">${item.description}</p>
+                  <p class="card-text fw-bold">${item.price}</p>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        document.querySelectorAll(".menu-card").forEach(card => {
+        card.addEventListener("click", () => {
+            document.getElementById("menuModalLabel").textContent = card.dataset.name;
+            document.getElementById("modalDescription").textContent = card.dataset.description;
+            document.getElementById("modalPrice").textContent = card.dataset.price;
+            document.getElementById("modalImage").src = card.dataset.image;
+
+            const modal = new bootstrap.Modal(document.getElementById("menuModal"));
+            modal.show();
+        });
+        });
+      }
+      renderMenu(currentCategory);
+
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelector("#category-buttons .active")
+            .classList.remove("active");
+          btn.classList.add("active");
+          renderMenu(btn.dataset.category);
+        });
+      });
+      searchInput.addEventListener("input" ,(e)=>{
+        const searchTerm = e.target.value;
+        renderMenu(currentCategory,searchTerm);
+      });
+    })
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
